@@ -1,0 +1,117 @@
+# Google Cloud CLI Commands for Ops Agent Monitoring
+
+This document provides useful `gcloud` commands for setting up and managing your Compute Engine VM and Ops Agent monitoring.
+
+## VM Instance Management
+
+### Create a VM instance
+```bash
+gcloud compute instances create quickstart-vm \
+    --machine-type=e2-small \
+    --image-family=debian-12 \
+    --image-project=debian-cloud \
+    --tags=http-server,https-server \
+    --zone=YOUR_ZONE
+```
+
+### SSH into your VM
+```bash
+gcloud compute ssh quickstart-vm --zone=YOUR_ZONE
+```
+
+### List all VM instances
+```bash
+gcloud compute instances list
+```
+
+### Delete a VM instance
+```bash
+gcloud compute instances delete quickstart-vm --zone=YOUR_ZONE
+```
+
+## Firewall Rules
+
+### Create firewall rules for HTTP and HTTPS
+```bash
+# Allow HTTP traffic
+gcloud compute firewall-rules create allow-http \
+    --direction=INGRESS \
+    --action=ALLOW \
+    --rules=tcp:80 \
+    --target-tags=http-server
+
+# Allow HTTPS traffic
+gcloud compute firewall-rules create allow-https \
+    --direction=INGRESS \
+    --action=ALLOW \
+    --rules=tcp:443 \
+    --target-tags=https-server
+```
+
+## Monitoring Commands
+
+### View Ops Agent status
+```bash
+sudo systemctl status google-cloud-ops-agent
+```
+
+### Restart Ops Agent
+```bash
+sudo systemctl restart google-cloud-ops-agent
+```
+
+### View Ops Agent logs
+```bash
+sudo journalctl -u google-cloud-ops-agent
+```
+
+## Creating Alerting Policies via gcloud
+
+### Create a metric-based alerting policy
+```bash
+gcloud alpha monitoring policies create \
+    --display-name="Apache traffic above threshold" \
+    --condition-display-name="Apache traffic exceeds 4 KiB/s" \
+    --condition-filter="metric.type=\"workload.googleapis.com/apache.traffic\" resource.type=\"gce_instance\"" \
+    --condition-threshold-value=4000 \
+    --condition-threshold-comparator=COMPARISON_GT \
+    --condition-duration=60s \
+    --notification-channels=YOUR_NOTIFICATION_CHANNEL_ID \
+    --documentation-content="Apache traffic has exceeded the threshold of 4 KiB/s"
+```
+
+### List alerting policies
+```bash
+gcloud alpha monitoring policies list
+```
+
+### Get notification channel IDs
+```bash
+gcloud alpha monitoring channels list
+```
+
+### Create an email notification channel
+```bash
+gcloud alpha monitoring channels create \
+    --display-name="My Email Alert" \
+    --type=email \
+    --channel-labels=email_address=your-email@example.com
+```
+
+## Apache Server Management
+
+### Check Apache status
+```bash
+sudo systemctl status apache2
+```
+
+### Restart Apache
+```bash
+sudo systemctl restart apache2
+```
+
+### View Apache logs
+```bash
+sudo tail -f /var/log/apache2/access.log
+sudo tail -f /var/log/apache2/error.log
+```

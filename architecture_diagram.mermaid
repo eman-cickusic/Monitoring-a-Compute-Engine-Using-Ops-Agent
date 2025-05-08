@@ -1,0 +1,35 @@
+flowchart TB
+    subgraph "Google Cloud Platform"
+        VM["Compute Engine VM\n(quickstart-vm)"]
+        subgraph "VM Components"
+            Apache["Apache Web Server"]
+            OpsAgent["Google Cloud Ops Agent"]
+        end
+        
+        Monitor["Cloud Monitoring"]
+        Alert["Cloud Alerting"]
+        Email["Email Notification"]
+    end
+    
+    User["User / Client"]
+    Admin["Administrator"]
+    
+    User -->|"HTTP/HTTPS\nRequests"| Apache
+    Apache -->|"Generates\nLogs & Metrics"| OpsAgent
+    OpsAgent -->|"Forwards\nLogs & Metrics"| Monitor
+    Monitor -->|"Triggers\nWhen Threshold\nExceeded"| Alert
+    Alert -->|"Sends\nNotification"| Email
+    Email -->|"Receives\nAlert"| Admin
+    
+    Admin -->|"Views\nMetrics\nDashboard"| Monitor
+    Admin -->|"SSH Access\nManagement"| VM
+    
+    classDef google fill:#4285F4,stroke:#4285F4,color:white;
+    classDef vm fill:#5C6BC0,stroke:#5C6BC0,color:white;
+    classDef component fill:#7986CB,stroke:#7986CB,color:white;
+    classDef user fill:#43A047,stroke:#43A047,color:white;
+    
+    class Monitor,Alert,Email google;
+    class VM vm;
+    class Apache,OpsAgent component;
+    class User,Admin user;
